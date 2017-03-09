@@ -93,7 +93,7 @@ export default function (app) {
   }
 
   load(function () {
-    root = app.root || document.body.appendChild(document.createElement("div"))
+    root = app.root ? createElementFrom(app.root) : document.body.appendChild(document.createElement("div"))
 
     render(model, view)
 
@@ -147,6 +147,10 @@ export default function (app) {
     return type === "string" || type === "number" || type === "boolean"
   }
 
+  function isElement(node) {
+    return node instanceof window.HTMLElement
+  }
+
   function defer(fn, data) {
     setTimeout(function () {
       fn(data)
@@ -154,16 +158,17 @@ export default function (app) {
   }
 
   function shouldUpdate(a, b) {
-    return a.tag !== b.tag || typeof a !== typeof b || isPrimitive(a) && a !== b
+    return a.tag !== b.tag || typeof a !== typeof b || isPrimitive(a) && a !== b || isElement(a) && a.isSameNode(b)
   }
 
   function createElementFrom(node, isSVG) {
     var element
-
+    if (isElement(node)) {
+      return node
+    }
     // There are only two types of nodes. A string node, which is
     // converted into a Text node or an object that describes an
     // HTML element and may also contain children.
-
     if (typeof node === "string") {
       element = document.createTextNode(node)
 
@@ -286,4 +291,5 @@ export default function (app) {
       }
     }
   }
+  return root
 }
