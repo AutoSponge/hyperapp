@@ -92,7 +92,7 @@ export default function (app) {
     })
   }
 
-  load(function () {
+  return load(function () {
     root = app.root ? createElementFrom(app.root) : document.body.appendChild(document.createElement("div"))
 
     render(model, view)
@@ -100,11 +100,13 @@ export default function (app) {
     for (var i = 0; i < subscriptions.length; i++) {
       subscriptions[i](model, actions, onError)
     }
+
+    return root
   })
 
   function load(fn) {
-    if (document.readyState[0] !== "l") {
-      fn()
+    if (document.readyState[0] !== "l" || app.root) {
+      return fn()
     } else {
       document.addEventListener("DOMContentLoaded", fn)
     }
@@ -258,7 +260,7 @@ export default function (app) {
   }
 
   function patch(parent, oldNode, node, index) {
-    if (oldNode === undefined) {
+    if (oldNode === undefined || !parent.childNodes[index]) {
       parent.appendChild(createElementFrom(node))
 
     } else if (node === undefined) {
@@ -291,5 +293,4 @@ export default function (app) {
       }
     }
   }
-  return root
 }
