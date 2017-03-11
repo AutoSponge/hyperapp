@@ -769,10 +769,12 @@ describe("app", () => {
 			`)
     })
     it("app returns root which makes app composable", () => {
-      app({
-        root: document.body.appendChild(document.createElement("main")),
+      const main = document.createElement("main")
+      document.body.appendChild(main)
+      expect(app({
+        root: main,
         view: _ => app({view: _ => 'composed'})
-      })
+      })).toBe(main)
 
       expectHTMLToBe(`
 				<main>

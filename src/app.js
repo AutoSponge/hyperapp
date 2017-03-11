@@ -93,7 +93,9 @@ export default function (app) {
   }
 
   return load(function () {
-    root = app.root ? createElementFrom(app.root) : document.body.appendChild(document.createElement("div"))
+    if (!app.root) {
+      document.body.appendChild(root)
+    }
 
     render(model, view)
 
@@ -101,15 +103,18 @@ export default function (app) {
       subscriptions[i](model, actions, onError)
     }
 
-    return root
   })
 
   function load(fn) {
-    if (document.readyState[0] !== "l" || app.root) {
-      return fn()
+    root = app.root ? createElementFrom(app.root) : document.createElement("div")
+
+    if (document.readyState[0] !== "l") {
+      fn()
     } else {
       document.addEventListener("DOMContentLoaded", fn)
     }
+
+    return root
   }
 
   function render(model, view) {
